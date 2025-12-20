@@ -1,0 +1,361 @@
+<!DOCTYPE html><html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stellar Hub Website</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="js/tsparticles.bundle.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes sonar-ping {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        @keyframes sonar-ping-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        @keyframes text-gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a0a;
+            color: #e5e7eb;
+            -webkit-user-select: none; /* Safari */
+            -ms-user-select: none; /* IE 10+ */
+            user-select: none; /* Standard */
+        }
+        
+        #tsparticles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .btn {
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+        }
+        .modal-content {
+            transform: translateY(-30px) scale(0.98);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+        }
+        .modal-backdrop.active .modal-content {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .status-online { background-color: #22c55e; animation: sonar-ping 2s infinite ease-out; }
+        .status-offline { background-color: #ef4444; animation: sonar-ping-red 2.5s infinite ease-out; }
+
+        .text-gradient {
+            background: linear-gradient(90deg, #3b82f6, #a855f7, #ec4899, #3b82f6);
+            background-size: 200% 200%;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; text-fill-color: transparent;
+            animation: text-gradient-animation 5s ease infinite;
+        }
+        .header-glow { text-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .version-toggle button {
+            transition: all 0.3s ease;
+            border: 2px solid #374151;
+        }
+        .version-toggle button.active {
+            background-image: linear-gradient(to right, #3b82f6, #60a5fa);
+            border-color: #3b82f6;
+            color: white;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        .game-grid-bg {
+            background-image: linear-gradient(rgba(59,130,246,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.1) 1px, transparent 1px);
+            background-size: 3rem 3rem;
+        }
+        .game-item {
+            transition: transform 0.2s ease-in-out;
+        }
+        .game-item:hover {
+            transform: scale(1.05);
+        }
+        .game-item-img.grayscale {
+            filter: grayscale(100%) brightness(0.7);
+        }
+
+        /* Nav Tab Styling */
+        .nav-tab {
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 0.5rem;
+        }
+        .nav-tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+        .nav-tab:not(.active):hover {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+        }
+    </style>
+</head>
+<body class="antialiased" oncontextmenu="return false;">
+    <div id="tsparticles"></div>
+
+    <header class="bg-transparent fixed top-0 left-0 right-0 z-40">
+         <nav class="container mx-auto px-4 sm:px-6 py-4 flex justify-between items-center bg-black/10 backdrop-blur-lg mt-4 rounded-full border border-gray-800">
+            <h1 class="text-xl sm:text-2xl font-extrabold text-white header-glow tracking-wider text-gradient">STELLAR HUB</h1>
+            <div class="hidden sm:flex items-center gap-6">
+                <button id="mods-tab" class="nav-tab active font-semibold uppercase tracking-wider">Home</button>
+                <button id="status-tab" class="nav-tab font-semibold uppercase tracking-wider">Status</button>
+            </div>
+            <a href="https://discord.gg/A9hV7nQEeJ" target="_blank" class="btn bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 sm:px-5 rounded-full shadow-lg text-sm sm:text-base">Discord Server</a>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 pt-32 pb-12 relative z-10">
+        
+        <!-- Mobile Navigation Tabs -->
+        <div class="sm:hidden flex justify-around gap-4 mb-8 border-b border-gray-800 pb-2">
+            <button id="mods-tab-mobile" class="nav-tab active font-semibold uppercase tracking-wider text-sm">Home</button>
+            <button id="status-tab-mobile" class="nav-tab font-semibold uppercase tracking-wider text-sm">Status</button>
+        </div>
+        
+        <!-- MODS PAGE -->
+<div id="mods-page">
+    <section class="text-center py-12 sm:py-20 reveal">
+        <h2 class="text-4xl sm:text-5xl lg:text-7xl font-black text-white mb-4" style="font-family: 'Exo 2', sans-serif;">ELEVATE YOUR GAME</h2>
+        <p class="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto">Access the most powerful and secure script for your favorite games.</p>
+    </section>
+
+    <div class="space-y-12">
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 justify-center">
+    <div class="install-step flex flex-col items-center justify-start p-4 rounded-lg bg-gray-900/50 border border-gray-700/50">
+        <h3 class="font-bold text-base text-white">Diesel N' Steel</h3>
+        <p class="text-gray-400 text-sm mb-3"></p>
+        <button onclick="copyScript('dns-script', this)" class="mt-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md shadow-lg transition-all duration-300 ease-in-out">Download Script</button>
+        <code id="dns-script" class="hidden">
+loadstring(game:HttpGet("https://api.junkie-development.de/api/v1/luascripts/public/7e271c2e512592e76cba388f418132d79956d7aeca56ff9f8e560ea848d1ce56/download"))()
+        </code>
+    </div>
+
+    <div class="install-step flex flex-col items-center justify-start p-4 rounded-lg bg-gray-900/50 border border-gray-700/50">
+        <h3 class="font-bold text-base text-white">The Forge</h3>
+        <p class="text-gray-400 text-sm mb-3"></p>
+        <button onclick="copyScript('forge-script', this)" class="mt-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md shadow-lg transition-all duration-300 ease-in-out">Download Script</button>
+        <code id="forge-script" class="hidden">
+loadstring(game:HttpGet("https://api.junkie-development.de/api/v1/luascripts/public/4fa68e45b0064fba2b54af209a2cf005e83bd3ac8912987eedc891123590c6d8/download"))()
+        </code>
+    </div>
+</div>
+
+<script>
+function copyScript(id, button) {
+    const codeElement = document.getElementById(id);
+    const scriptText = codeElement.innerText.trim();
+
+    const textarea = document.createElement('textarea');
+    textarea.value = scriptText;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+
+        const originalText = button.innerText;
+        button.innerText = 'Copied!';
+        setTimeout(() => { button.innerText = originalText; }, 1500);
+
+    } catch (err) {
+        console.error('Failed to copy:', err);
+    }
+    document.body.removeChild(textarea);
+}
+</script>
+
+                <div class="bg-black/30 p-4 sm:p-8 rounded-2xl border border-gray-800 shadow-2xl reveal relative overflow-hidden game-grid-bg">
+                    <h2 class="text-2xl sm:text-3xl font-bold text-center mb-8 text-white uppercase tracking-widest" style="font-family: 'Exo 2', sans-serif;">Supported Games</h2>
+                    <div class="flex flex-wrap justify-center items-end gap-x-8 sm:gap-x-12 gap-y-8">
+                        <div class="game-item text-center cursor-pointer"><div class="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center"><img src="images/Dns.png" alt="DIESEL N' STEEL" class="game-item-img max-h-full max-w-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/112x112/0a0a0a/e5e7eb?text=CODM-GR';"></div><h3 class="mt-2 font-bold uppercase tracking-wider text-sm sm:text-base text-white" style="font-family: 'Exo 2', sans-serif;">DIESEL N' STEEL</h3><p class="text-xs uppercase tracking-widest invisible">Coming Soon</p></div>
+                         <div class="game-item text-center cursor-pointer"><div class="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center"><img src="images/TheForge.png" alt="THE FORGE" class="game-item-img max-h-full max-w-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/112x112/0a0a0a/e5e7eb?text=THE FORGE';"></div><h3 class="mt-2 font-bold uppercase tracking-wider text-sm sm:text-base text-white" style="font-family: 'Exo 2', sans-serif;">THE FORGE</h3><p class="text-xs uppercase tracking-widest invisible">Coming Soon</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        
+        <!-- STATUS PAGE -->
+        <div id="status-page" class="hidden">
+            <section class="text-center py-12 sm:py-20 reveal">
+                <h2 class="text-4xl sm:text-5xl lg:text-7xl font-black text-white mb-4" style="font-family: 'Exo 2', sans-serif;">SCRIPT STATUS</h2>
+                <p class="text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto">Live status updates for all our available game scripts.</p>
+            </section>
+            <div class="bg-black/30 p-4 sm:p-8 rounded-2xl border border-gray-800 shadow-2xl reveal game-grid-bg">
+                <div class="space-y-4">
+                    <!-- Status Item -->
+                    <div class="flex items-center justify-between bg-gray-900/50 p-4 rounded-lg border border-gray-700/50">
+                        <div class="flex items-center gap-4">
+                            <img src="images/Dns.png" class="w-12 h-12 object-contain" onerror="this.onerror=null;this.src='https://placehold.co/48x48/0a0a0a/e5e7eb?text=GR';">
+                            <span class="font-bold text-lg">DIESEL N' STEEL</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                             <span class="font-semibold text-green-400">ONLINE</span>
+                            <div class="w-4 h-4 rounded-full status-online"></div>
+                        </div>
+                    </div>
+                    <!-- Status Item -->
+                    <div class="flex items-center justify-between bg-gray-900/50 p-4 rounded-lg border border-gray-700/50">
+                        <div class="flex items-center gap-4">
+                            <img src="images/TheForge.png" class="w-12 h-12 object-contain" onerror="this.onerror=null;this.src='https://placehold.co/48x48/0a0a0a/e5e7eb?text=BS';">
+                            <span class="font-bold text-lg">THE FORGE</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                             <span class="font-semibold text-green-400">ONLINE</span>
+                            <div class="w-4 h-4 rounded-full status-online"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    
+
+    <script>
+        // Anti-dumping script
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I') || (e.ctrlKey && e.shiftKey && e.key === 'J') || (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault();
+            }
+        });
+        
+        const antiDebug = () => {
+            function check() {
+                const a = new Date();
+                debugger;
+                const b = new Date();
+                if (b - a > 100) {
+                    document.body.innerHTML = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:black;color:white;display:flex;justify-content:center;align-items:center;font-size:2rem;">Developer tools are not allowed.</div>';
+                }
+            }
+            setInterval(check, 1000);
+        };
+        antiDebug();
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const isMobile = window.innerWidth < 768;
+
+            const desktopParticlesConfig = {
+                fpsLimit: 60,
+                particles: {
+                    number: { value: 40, density: { enable: true, value_area: 800 } },
+                    color: { value: "#3b82f6" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true, anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false } },
+                    size: { value: 2, random: true },
+                    line_linked: { enable: true, distance: 150, color: "#1f2937", opacity: 0.4, width: 1 },
+                    move: { enable: true, speed: 1, direction: "none", random: false, straight: false, out_mode: "out" }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: { onhover: { enable: true, mode: "grab" }, onclick: { enable: true, mode: "push" }, resize: true },
+                    modes: { grab: { distance: 140, line_opacity: 1 }, push: { particles_nb: 4 } }
+                },
+                detectRetina: true,
+            };
+
+            const mobileParticlesConfig = {
+                fpsLimit: 30,
+                particles: {
+                    number: { value: 20, density: { enable: true, value_area: 800 } },
+                    color: { value: "#3b82f6" },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.5, random: true },
+                    size: { value: 2, random: true },
+                    line_linked: { enable: false },
+                    move: { enable: true, speed: 1.5, direction: "none", random: true, straight: false, out_mode: "out" }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: { onclick: { enable: true, mode: "push" }, resize: true },
+                    modes: { push: { particles_nb: 2 } }
+                },
+                detectRetina: true,
+            };
+
+            tsParticles.load("tsparticles", isMobile ? mobileParticlesConfig : desktopParticlesConfig);
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            
+            // Tab switching logic
+            const tabs = document.querySelectorAll('.nav-tab');
+            const pages = {
+                mods: document.getElementById('mods-page'),
+                status: document.getElementById('status-page'),
+            };
+
+            const switchTab = (tabName) => {
+                Object.keys(pages).forEach(page => {
+                    pages[page].classList.add('hidden');
+                });
+                pages[tabName].classList.remove('hidden');
+
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+                document.getElementById(`${tabName}-tab-mobile`).classList.add('active');
+            }
+
+            document.getElementById('mods-tab').addEventListener('click', () => switchTab('mods'));
+            document.getElementById('status-tab').addEventListener('click', () => switchTab('status'));
+            document.getElementById('mods-tab-mobile').addEventListener('click', () => switchTab('mods'));
+            document.getElementById('status-tab-mobile').addEventListener('click', () => switchTab('status'));
+        });
+
+        function openModal(modalId){if(modalId==='codm-garena')setVersion('v6');const modal=document.getElementById('modal-'+modalId);if(modal){modal.classList.remove('hidden');document.body.style.overflow='hidden';setTimeout(()=>modal.classList.add('active'),10)}}
+        function closeModal(modalId){const modal=document.getElementById('modal-'+modalId);if(modal){modal.classList.remove('active');setTimeout(()=>{modal.classList.add('hidden');document.body.style.overflow='';},400)}}
+        document.addEventListener('keydown',(e)=>{if(e.key==="Escape")document.querySelectorAll('.modal-backdrop.active').forEach(m=>closeModal(m.id.replace('modal-','')))});
+        document.querySelectorAll('.modal-backdrop').forEach(m=>{m.addEventListener('click',(e)=>{if(e.target===m)closeModal(m.id.replace('modal-',''))})});
+        const garenaPrices={v6:[{term:'03 Days',php:40,usd:2},{term:'07 Days',php:80,usd:3},{term:'15 Days',php:180,usd:4},{term:'30 Days',php:220,usd:6},{term:'60 Days',php:380,usd:8},{term:'Lifetime',php:599,usd:12}]};
+        garenaPrices.v5=garenaPrices.v6.map(p=>({term:p.term,php:Math.round(p.php*0.95),usd:Math.round(p.usd*0.95)}));
+        const v5btn=document.getElementById('v5-btn'),v6btn=document.getElementById('v6-btn'),v5feats=document.getElementById('v5-features'),v6feats=document.getElementById('v6-features'),versionLabel=document.getElementById('version-label'),priceGrid=document.getElementById('price-grid');
+        function setVersion(version){const prices=garenaPrices[version];versionLabel.textContent=version.toUpperCase();priceGrid.innerHTML='';prices.forEach(price=>{const div=document.createElement('div');div.className='bg-gray-800/50 p-3 sm:p-4 rounded-lg border border-gray-700 hover:border-blue-500 hover:scale-105 transition-all';div.innerHTML=`<p class="font-bold text-white text-sm">${price.term}</p><p class="text-blue-400 text-base sm:text-lg font-semibold">${price.php}₱ / ${price.usd}$</p>`;priceGrid.appendChild(div);});if(version==='v5'){v5btn.classList.add('active');v6btn.classList.remove('active');v5feats.classList.remove('hidden');v6feats.classList.add('hidden');}else{v6btn.classList.add('active');v5btn.classList.remove('active');v6feats.classList.remove('hidden');v5feats.classList.add('hidden');}}
+    </script>
+
+
+</body></html>
